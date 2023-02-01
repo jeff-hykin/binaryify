@@ -13,7 +13,7 @@ binaryify YOUR_FILE.wasm
 # outputs:
 #    // paths have been generated!
 #    // add this wherever you need it now:
-#    import { stringToBytes } from "https://deno.land/x/binaryify@0.0.4/tools.js"
+#    import { stringToBytes } from "https://deno.land/x/binaryify@0.0.5/tools.js"
 #
 #    import binaryStringForYourFileWasm from "./tree-sitter-nix.wasm.binaryified.js"
 #    const bytesForYourFileWasm = stringToBytes(binaryStringForYourFileWasm)

@@ -1,9 +1,9 @@
 #!/usr/bin/env -S deno run --allow-all
 import { ensure } from 'https://deno.land/x/ensure/mod.ts'; ensure({ denoVersion: "1.17.1", })
-const { FileSystem } = await import(`https://deno.land/x/quickr@0.6.15/main/file_system.js`)
+import { FileSystem } from "https://deno.land/x/quickr@0.6.15/main/file_system.js"
 import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.7.8/string.js"
+import { Console, cyan, white, yellow, green, red } from "https://deno.land/x/quickr@0.6.15/main/console.js"
 import { bytesToString } from './tools.js'
-const { Console, cyan, white, yellow, green, purple, red } = await import(`https://deno.land/x/quickr@0.6.15/main/console.js`)
 
 if (!Deno.args) {
     console.log(`
@@ -17,7 +17,7 @@ if (!Deno.args) {
     console.log(`
 // paths have been generated!
 // add this wherever you need it now:
-${cyan`import`} { ${red("stringToBytes")} } ${cyan`from`} ${green`"https://deno.land/x/binaryify@0.0.4/tools.js"`}\n`)
+${cyan`import`} { ${red("stringToBytes")} } ${cyan`from`} ${green`"https://deno.land/x/binaryify@0.0.5/tools.js"`}\n`)
     for (let [realNameSuggestion, newPath] of namesAndStuff) {
         console.log(`${cyan`import`} ${yellow("binaryStringFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
     }
