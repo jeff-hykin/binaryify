@@ -22,7 +22,7 @@ ${cyan`import`} { ${red("stringToBytes")} } ${cyan`from`} ${green`"https://deno.
         console.log(`${cyan`import`} ${yellow("binaryStringFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
     }
     for (let [realNameSuggestion, newPath] of namesAndStuff) {
-        console.log(`${cyan`const`} ${yellow("bytesFor"+realNameSuggestion)} = ${red`stringToBytes(`}${yellow("binaryStringFor"+realNameSuggestion)}${red`)`}`)
+        console.log(`${cyan`const`} ${yellow("uint8ArrayFor"+realNameSuggestion)} = ${red`stringToBytes(`}${yellow("binaryStringFor"+realNameSuggestion)}${red`)`}`)
     }
 }
 

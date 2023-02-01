@@ -15,6 +15,6 @@ binaryify YOUR_FILE.wasm
 #    // add this wherever you need it now:
 #    import { stringToBytes } from "https://deno.land/x/binaryify@0.0.5/tools.js"
 #
-#    import binaryStringForYourFileWasm from "./tree-sitter-nix.wasm.binaryified.js"
-#    const bytesForYourFileWasm = stringToBytes(binaryStringForYourFileWasm)
+#    import binaryStringForYourFile from "./YOUR_FILE.wasm.binaryified.js"
+#    const uint8ArrayForYourFile = stringToBytes(binaryStringForYourFile)
 ```
