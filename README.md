@@ -3,7 +3,18 @@
 If (for bundling purposes) you want to use an import statement for data that isn't necessarily JavaScript, then this is the tool for you.
 
 ```sh
-deno install https://deno.land/x/binaryify/binaryify.js
+deno install -Af https://deno.land/x/binaryify/binaryify.js
+# might need
+export PATH="$HOME/.deno/bin:$PATH"
 
-binaryify YOUR_FILE.hex YOUR_FILE.wasm YOUR_FILE.o
+# usage
+binaryify YOUR_FILE.wasm
+
+# outputs:
+#    // paths have been generated!
+#    // add this wherever you need it now:
+#    import { stringToBytes } from "https://deno.land/x/binaryify@0.0.4/tools.js"
+#
+#    import binaryStringForYourFileWasm from "./tree-sitter-nix.wasm.binaryified.js"
+#    const bytesForYourFileWasm = stringToBytes(binaryStringForYourFileWasm)
 ```

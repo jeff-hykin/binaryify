@@ -11,9 +11,19 @@ if (!Deno.args) {
         Instructions will be given on how to handle the binaryified-file after
     `)
 } else {
-    await Promise.all(
+    const namesAndStuff = await Promise.all(
         Deno.args.map(eachPath=>binaryify(eachPath))
     )
+    console.log(`
+// paths have been generated!
+// add this wherever you need it now:
+${cyan`import`} { ${red("stringToBytes")} } ${cyan`from`} ${green`"https://deno.land/x/binaryify@0.0.4/tools.js"`}\n`)
+    for (let [realNameSuggestion, newPath] of namesAndStuff) {
+        console.log(`${cyan`import`} ${yellow("binaryStringFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
+    }
+    for (let [realNameSuggestion, newPath] of namesAndStuff) {
+        console.log(`${cyan`const`} ${yellow("bytesFor"+realNameSuggestion)} = ${red`stringToBytes(`}${yellow("binaryStringFor"+realNameSuggestion)}${red`)`}`)
+    }
 }
 
 async function binaryify(path) {
@@ -27,11 +37,5 @@ async function binaryify(path) {
     }
     const nameSuggestion = toCamelCase(FileSystem.basename(path))
     const realNameSuggestion = nameSuggestion[0].toUpperCase()+[...nameSuggestion].slice(1,).join("")
-    console.log(`
-    // ${JSON.stringify(newPath)} has been generated!
-    // add this wherever you need it now:
-        ${cyan`import`} ${yellow("binaryStringFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}
-        ${cyan`import`} { ${red("stringToBytes")} } ${cyan`from`} ${green`"https://deno.land/x/binaryify/tools.js"`}
-        ${cyan`const`} ${yellow("bytesFor"+realNameSuggestion)} = ${red`stringToBytes(`}${yellow("binaryStringFor"+realNameSuggestion)}${red`)`}
-    `)
+    return [ realNameSuggestion, newPath ]
 }
