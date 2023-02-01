@@ -1,0 +1,37 @@
+#!/usr/bin/env -S deno run --allow-all
+import { ensure } from 'https://deno.land/x/ensure/mod.ts'; ensure({ denoVersion: "1.17.1", })
+const { FileSystem } = await import(`https://deno.land/x/quickr@0.6.15/main/file_system.js`)
+import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.7.8/string.js"
+import { bytesToString } from './tools.js'
+const { Console, cyan, white, yellow, green, purple, red } = await import(`https://deno.land/x/quickr@0.6.15/main/console.js`)
+
+if (!Deno.args) {
+    console.log(`
+        To binaryify a file (or multiple) just give this command some arguments
+        Instructions will be given on how to handle the binaryified-file after
+    `)
+} else {
+    await Promise.all(
+        Deno.args.map(eachPath=>binaryify(eachPath))
+    )
+}
+
+async function binaryify(path) {
+    let newPath = path+".binaryified.js"
+    await FileSystem.write({
+        path: newPath,
+        data: `export default ${JSON.stringify(bytesToString(await Deno.readFile(path)))}`,
+    })
+    if (FileSystem.isRelativePath(newPath)) {
+        newPath = `./${FileSystem.normalize(newPath)}`
+    }
+    const nameSuggestion = toCamelCase(FileSystem.basename(path))
+    const realNameSuggestion = nameSuggestion[0].toUpperCase()+[...nameSuggestion].slice(1,).join("")
+    console.log(`
+    // ${JSON.stringify(newPath)} has been generated!
+    // add this wherever you need it now:
+        ${cyan`import`} ${yellow("binaryStringFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}
+        ${cyan`import`} { ${red("stringToBytes")} } ${cyan`from`} ${green`"https://deno.land/x/binaryify/tools.js"`}
+        ${cyan`const`} ${yellow("bytesFor"+realNameSuggestion)} = ${red`stringToBytes(`}${yellow("binaryStringFor"+realNameSuggestion)}${red`)`}
+    `)
+}
