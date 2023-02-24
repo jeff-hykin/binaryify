@@ -81,7 +81,7 @@ export function stringToBytes(string) {
     
     const eight = 8
     // chunksOfEight.length/8 should always result in an integer
-    const numberOfBlocks = chunksOfEight.length/eight
+    const numberOfBlocks = Math.ceil(chunksOfEight.length/eight)
     const arrays = []
     for (let index in [...Array(numberOfBlocks)]) {
         index-=0
