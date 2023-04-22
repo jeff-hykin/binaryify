@@ -5,6 +5,9 @@ import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, to
 import { Console, cyan, white, yellow, green, red } from "https://deno.land/x/quickr@0.6.15/main/console.js"
 import { bytesToString } from './tools.js'
 
+// note: the \u0000 replacement with \0 is more of a saftey to make files not contain null chars (technically its not required)
+const stringToDoubleQuoteRepresentation = (string) => '"'+string.replace(/[\\"]/g, '\\$&').replace(/\n/g, '\\n').replace(/\u0000/g, '\\0') + '"'
+
 if (!Deno.args) {
     console.log(`
         To binaryify a file (or multiple) just give this command some arguments
@@ -30,7 +33,7 @@ async function binaryify(path) {
     let newPath = path+".binaryified.js"
     await FileSystem.write({
         path: newPath,
-        data: `export default ${JSON.stringify(bytesToString(await Deno.readFile(path)))}`,
+        data: `export default ${stringToDoubleQuoteRepresentation(bytesToString(await Deno.readFile(path)))}`,
     })
     if (FileSystem.isRelativePath(newPath)) {
         newPath = `./${FileSystem.normalize(newPath)}`
