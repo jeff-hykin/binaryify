@@ -6,7 +6,20 @@ import { Console, cyan, white, yellow, green, red } from "https://deno.land/x/qu
 import { bytesToString } from './tools.js'
 
 // note: the \u0000 replacement with \0 is more of a saftey to make files not contain null chars (technically its not required)
-const stringToDoubleQuoteRepresentation = (string) => '"'+string.replace(/[\\"]/g, '\\$&').replace(/\n/g, '\\n').replace(/\u0000/g, '\\0') + '"'
+const stringToDoubleQuoteRepresentation = (string) => (
+    '"'+string.replace(
+        /"|\n|\r|\\|\u0000/g,
+        (char)=>{
+            switch (char) {
+                case '\\': return '\\\\'
+                case '"': return '\\"'
+                case '\n': return '\\n'
+                case '\r': return '\\r'
+                case '\u0000': return '\\0'
+            }
+        }
+    )+'"'
+)
 
 if (!Deno.args) {
     console.log(`
