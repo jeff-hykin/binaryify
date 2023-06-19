@@ -120,14 +120,14 @@ export async function binaryify({pathToBinary, pathToBinarified}) {
     await FileSystem.write({
         path: pathToBinarified,
         data: `
-            import { stringToBytes } from "https://deno.land/x/binaryify@2.1.0.1/tools.js"
-            export default stringToBytes(${stringToBacktickRepresentation(bytesToString(await Deno.readFile(path)))})
+            import { stringToBytes } from "https://deno.land/x/binaryify@2.1.0.2/tools.js"
+            export default stringToBytes(${stringToBacktickRepresentation(bytesToString(await Deno.readFile(pathToBinary)))})
         `,
     })
     if (FileSystem.isRelativePath(pathToBinarified)) {
         pathToBinarified = `./${FileSystem.normalize(pathToBinarified)}`
     }
-    const nameSuggestion = toCamelCase(FileSystem.basename(path))
+    const nameSuggestion = toCamelCase(FileSystem.basename(pathToBinary))
     const realNameSuggestion = nameSuggestion[0].toUpperCase()+[...nameSuggestion].slice(1,).join("")
     return [ realNameSuggestion, pathToBinarified ]
 }
