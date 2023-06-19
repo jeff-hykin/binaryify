@@ -2,7 +2,7 @@
 import { ensure } from 'https://deno.land/x/ensure/mod.ts'; ensure({ denoVersion: "1.17.1", })
 import { FileSystem } from "https://deno.land/x/quickr@0.6.15/main/file_system.js"
 import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.7.8/string.js"
-import { Console, cyan, white, yellow, green, red } from "https://deno.land/x/quickr@0.6.15/main/console.js"
+import { Console, cyan, white, yellow, green, red } from "https://deno.land/x/quickr@0.6.30/main/console.js"
 import { bytesToString } from './tools.js'
 
 
@@ -79,24 +79,42 @@ const stringToBacktickRepresentation = (string) => {
     // '`'+string.slice(0,10).replace("\\","\\\\").replace("`","\\`").replace("${","\\${")+'`'
 }
 
-if (!Deno.args) {
+
+// 
+// look for the -- argument
+// 
+let wePassedTheSwitch = false
+let endIndex = -1
+for (const each of Deno.args) {
+    endIndex += 1
+    if (each == "--") {
+        wePassedTheSwitch = true
+    }
+}
+const args = Deno.args.slice(endIndex)
+
+if (!args) {
     console.log(`
         To binaryify a file (or multiple) just give this command some arguments
         Instructions will be given on how to handle the binaryified-file after
+
+        ex:
+            binaryify -- ./your_file.something
     `)
 } else {
+
     const namesAndStuff = await Promise.all(
-        Deno.args.map(eachPath=>binaryify(eachPath))
+        args.map(eachPath=>binaryify(eachPath))
     )
-    console.log(`
+    Console.log(`
 // paths have been generated!
 // add this wherever you need it now:
-${cyan`import`} { ${red("stringToBytes")} } ${cyan`from`} ${green`"https://deno.land/x/binaryify@1.0.0.0/tools.js"`}\n`)
+${cyan`import`} { ${red("stringToBytes")} } ${cyan`from`} ${green`"https://deno.land/x/binaryify@2.0.0.0/tools.js"`}\n`)
     for (let [realNameSuggestion, newPath] of namesAndStuff) {
-        console.log(`${cyan`import`} ${yellow("binaryStringFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
+        Console.log(`${cyan`import`} ${yellow("binaryStringFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
     }
     for (let [realNameSuggestion, newPath] of namesAndStuff) {
-        console.log(`${cyan`const`} ${yellow("uint8ArrayFor"+realNameSuggestion)} = ${red`stringToBytes(`}${yellow("binaryStringFor"+realNameSuggestion)}${red`)`}`)
+        Console.log(`${cyan`const`} ${yellow("uint8ArrayFor"+realNameSuggestion)} = ${red`stringToBytes(`}${yellow("binaryStringFor"+realNameSuggestion)}${red`)`}`)
     }
 }
 
