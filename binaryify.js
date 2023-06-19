@@ -104,30 +104,30 @@ if (!args) {
 } else {
 
     const namesAndStuff = await Promise.all(
-        args.map(eachPath=>binaryify(eachPath))
+        args.map(eachPath=>binaryify({pathToBinary:eachPath}))
     )
     Console.log(`
 // paths have been generated!
 // add this wherever you need it now:
-${cyan`import`} { ${red("stringToBytes")} } ${cyan`from`} ${green`"https://deno.land/x/binaryify@2.0.0.0/tools.js"`}\n`)
+`)
     for (let [realNameSuggestion, newPath] of namesAndStuff) {
-        Console.log(`${cyan`import`} ${yellow("binaryStringFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
-    }
-    for (let [realNameSuggestion, newPath] of namesAndStuff) {
-        Console.log(`${cyan`const`} ${yellow("uint8ArrayFor"+realNameSuggestion)} = ${red`stringToBytes(`}${yellow("binaryStringFor"+realNameSuggestion)}${red`)`}`)
+        Console.log(`${cyan`import`} ${yellow("uint8ArrayFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
     }
 }
 
-async function binaryify(path) {
-    let newPath = path+".binaryified.js"
+export async function binaryify({pathToBinary, pathToBinarified}) {
+    pathToBinarified = pathToBinarified || pathToBinary+".binaryified.js"
     await FileSystem.write({
-        path: newPath,
-        data: `export default ${stringToBacktickRepresentation(bytesToString(await Deno.readFile(path)))}`,
+        path: pathToBinarified,
+        data: `
+            import { stringToBytes } from "https://deno.land/x/binaryify@2.1.0.0/tools.js"
+            export default stringToBytes(${stringToBacktickRepresentation(bytesToString(await Deno.readFile(path)))})
+        `,
     })
-    if (FileSystem.isRelativePath(newPath)) {
-        newPath = `./${FileSystem.normalize(newPath)}`
+    if (FileSystem.isRelativePath(pathToBinarified)) {
+        pathToBinarified = `./${FileSystem.normalize(pathToBinarified)}`
     }
     const nameSuggestion = toCamelCase(FileSystem.basename(path))
     const realNameSuggestion = nameSuggestion[0].toUpperCase()+[...nameSuggestion].slice(1,).join("")
-    return [ realNameSuggestion, newPath ]
+    return [ realNameSuggestion, pathToBinarified ]
 }
