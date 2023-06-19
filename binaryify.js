@@ -3,7 +3,7 @@ import { ensure } from 'https://deno.land/x/ensure/mod.ts'; ensure({ denoVersion
 import { FileSystem } from "https://deno.land/x/quickr@0.6.15/main/file_system.js"
 import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.7.8/string.js"
 import { Console, cyan, white, yellow, green, red } from "https://deno.land/x/quickr@0.6.30/main/console.js"
-import { bytesToString } from './tools.js'
+import { bytesToString, binaryify } from './tools.js'
 
 
 // this code was derived from: https://github.com/mathiasbynens/mothereff.in/tree/master/js-variables (MIT License)
@@ -113,21 +113,4 @@ if (!args) {
     for (let [realNameSuggestion, newPath] of namesAndStuff) {
         Console.log(`${cyan`import`} ${yellow("uint8ArrayFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
     }
-}
-
-export async function binaryify({pathToBinary, pathToBinarified}) {
-    pathToBinarified = pathToBinarified || pathToBinary+".binaryified.js"
-    await FileSystem.write({
-        path: pathToBinarified,
-        data: `
-            import { stringToBytes } from "https://deno.land/x/binaryify@2.1.0.2/tools.js"
-            export default stringToBytes(${stringToBacktickRepresentation(bytesToString(await Deno.readFile(pathToBinary)))})
-        `,
-    })
-    if (FileSystem.isRelativePath(pathToBinarified)) {
-        pathToBinarified = `./${FileSystem.normalize(pathToBinarified)}`
-    }
-    const nameSuggestion = toCamelCase(FileSystem.basename(pathToBinary))
-    const realNameSuggestion = nameSuggestion[0].toUpperCase()+[...nameSuggestion].slice(1,).join("")
-    return [ realNameSuggestion, pathToBinarified ]
 }

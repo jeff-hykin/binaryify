@@ -97,3 +97,20 @@ export function stringToBytes(string) {
     }
     return array.slice(0,sliceEnd)
 }
+
+export async function binaryify({pathToBinary, pathToBinarified}) {
+    pathToBinarified = pathToBinarified || pathToBinary+".binaryified.js"
+    await FileSystem.write({
+        path: pathToBinarified,
+        data: `
+            import { stringToBytes } from "https://deno.land/x/binaryify@2.2.0.0/tools.js"
+            export default stringToBytes(${stringToBacktickRepresentation(bytesToString(await Deno.readFile(pathToBinary)))})
+        `,
+    })
+    if (FileSystem.isRelativePath(pathToBinarified)) {
+        pathToBinarified = `./${FileSystem.normalize(pathToBinarified)}`
+    }
+    const nameSuggestion = toCamelCase(FileSystem.basename(pathToBinary))
+    const realNameSuggestion = nameSuggestion[0].toUpperCase()+[...nameSuggestion].slice(1,).join("")
+    return [ realNameSuggestion, pathToBinarified ]
+}
