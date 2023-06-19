@@ -91,7 +91,7 @@ if (!Deno.args) {
     console.log(`
 // paths have been generated!
 // add this wherever you need it now:
-${cyan`import`} { ${red("stringToBytes")} } ${cyan`from`} ${green`"https://deno.land/x/binaryify@0.0.11/tools.js"`}\n`)
+${cyan`import`} { ${red("stringToBytes")} } ${cyan`from`} ${green`"https://deno.land/x/binaryify@1.0.0.0/tools.js"`}\n`)
     for (let [realNameSuggestion, newPath] of namesAndStuff) {
         console.log(`${cyan`import`} ${yellow("binaryStringFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
     }
