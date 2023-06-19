@@ -1,3 +1,6 @@
+import { FileSystem } from "https://deno.land/x/quickr@0.6.30/main/file_system.js"
+import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.7.8/string.js"
+
 export function getBit(n, bit) {
     return n >> bit & 1
 }
@@ -103,7 +106,7 @@ export async function binaryify({pathToBinary, pathToBinarified}) {
     await FileSystem.write({
         path: pathToBinarified,
         data: `
-            import { stringToBytes } from "https://deno.land/x/binaryify@2.2.0.0/tools.js"
+            import { stringToBytes } from "https://deno.land/x/binaryify@2.2.0.1/tools.js"
             export default stringToBytes(${stringToBacktickRepresentation(bytesToString(await Deno.readFile(pathToBinary)))})
         `,
     })
