@@ -3,7 +3,7 @@
 If (for bundling purposes) you want to use an import statement for data that isn't necessarily JavaScript, then this is the tool for you.
 
 ```sh
-deno install -Af https://deno.land/x/binaryify@2.2.0.3/binaryify.js
+deno install -Af https://deno.land/x/binaryify@2.2.0.4/binaryify.js
 # might need
 export PATH="$HOME/.deno/bin:$PATH"
 
@@ -14,11 +14,11 @@ binaryify -- YOUR_FILE.wasm
 #    // paths have been generated!
 #    // add this wherever you need it now:
 #
-#    import binaryStringForYourFile from "./YOUR_FILE.wasm.binaryified.js"
+#    import uint8ArrayForYourFile from "./YOUR_FILE.wasm.binaryified.js"
 ```
 
 ```js
-import { binaryify } from "https://deno.land/x/binaryify@2.2.0.3/tools.js"
+import { binaryify } from "https://deno.land/x/binaryify@2.2.0.4/tools.js"
 await binaryify({
     pathToBinary: "your_thing.png",
     pathToBinarified: "your_thing.binaryified.js",
