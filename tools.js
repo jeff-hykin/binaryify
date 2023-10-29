@@ -12,9 +12,26 @@ export function setBit(n, bit, value=1) {
         return ~(~n | (1 << bit))
     }
 }
-export const concatUint8Arrays = (arrays) => new Uint8Array( // simplified from: https://stackoverflow.com/questions/49129643/how-do-i-merge-an-array-of-uint8arrays
-        arrays.reduce((acc, curr) => (acc.push(...curr),acc), [])
-    )
+
+export function concatUint8Arrays(arrays) {
+    // Calculate the total length of the concatenated array
+    let totalLength = 0
+    for (const arr of arrays) {
+        totalLength += arr.length
+    }
+
+    // Create a new Uint8Array with the total length
+    const result = new Uint8Array(totalLength)
+
+    // Copy the elements from each source array into the result array
+    let offset = 0
+    for (const arr of arrays) {
+        result.set(arr, offset)
+        offset += arr.length
+    }
+
+    return result
+}
 
 export function sevenToEight(sevenBytes) {
     const eight = 8
@@ -179,7 +196,7 @@ export async function binaryify({pathToBinary, pathToBinarified}) {
     await FileSystem.write({
         path: pathToBinarified,
         data: `
-            import { stringToBytes } from "https://deno.land/x/binaryify@2.2.0.6/tools.js"
+            import { stringToBytes } from "https://deno.land/x/binaryify@2.2.0.7/tools.js"
             export default stringToBytes(${stringToBacktickRepresentation(bytesToString(await Deno.readFile(pathToBinary)))})
         `,
     })
