@@ -179,7 +179,7 @@ export async function binaryify({pathToBinary, pathToBinarified}) {
     await FileSystem.write({
         path: pathToBinarified,
         data: `
-            import { stringToBytes } from "https://deno.land/x/binaryify@2.2.0.5/tools.js"
+            import { stringToBytes } from "https://deno.land/x/binaryify@2.2.0.6/tools.js"
             export default stringToBytes(${stringToBacktickRepresentation(bytesToString(await Deno.readFile(pathToBinary)))})
         `,
     })
