@@ -1,9 +1,7 @@
 #!/usr/bin/env -S deno run --allow-all
 import { ensure } from 'https://deno.land/x/ensure/mod.ts'; ensure({ denoVersion: "1.17.1", })
-import { FileSystem } from "https://deno.land/x/quickr@0.6.47/main/file_system.js"
-import { capitalize, indent, toCamelCase, digitsToEnglishArray, toPascalCase, toKebabCase, toSnakeCase, toScreamingtoKebabCase, toScreamingtoSnakeCase, toRepresentation, toString } from "https://deno.land/x/good@0.7.8/string.js"
 import { Console, cyan, white, yellow, green, red } from "https://deno.land/x/quickr@0.6.47/main/console.js"
-import { bytesToString, binaryify } from './tools.js'
+import { binaryify } from './binaryify_api.js'
 
 
 // 
