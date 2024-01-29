@@ -60,7 +60,7 @@ export async function binaryify({pathToBinary, pathToBinarified}) {
                 // Copy the elements from each source array into the result array
                 let offset = 0
                 for (const arr of arrays) {
-                    result.set(arr, offset)
+                    array.set(arr, offset)
                     offset += arr.length
                 }
 
