@@ -46,7 +46,7 @@ export function sevenToEight(sevenBytes) {
     return newBytes
 }
 
-export function eightToSeven(eightBytes) {
+function eightToSeven(eightBytes) {
     const seven = 7
     const sevenBytes = eightBytes.slice(0,seven)
     const finalByte = eightBytes[seven]
@@ -56,9 +56,13 @@ export function eightToSeven(eightBytes) {
         index++
         // first seven bits go into respective elements (copied)
         newBytes[index] = each
-
-        if (getBit(finalByte, index)) {
-            newBytes[index] = setBit(newBytes[index], seven)
+        
+        // same as:
+        // if (getBit(finalByte, index)) {
+        //     newBytes[index] = setBit(newBytes[index], seven)
+        // }
+        if (finalByte >> index & 1) {
+            newBytes[index] = newBytes[index] | (1 << seven)
         }
     }
     return newBytes
@@ -108,7 +112,23 @@ export function stringToBytes(string) {
             )
         )
     }
-    const array = concatUint8Arrays(arrays)
+
+    // Calculate the total length of the concatenated array
+    let totalLength = 0
+    for (const arr of arrays) {
+        totalLength += arr.length
+    }
+    
+    // Create a new Uint8Array with the total length
+    const array = new Uint8Array(totalLength)
+
+    // Copy the elements from each source array into the result array
+    let offset = 0
+    for (const arr of arrays) {
+        array.set(arr, offset)
+        offset += arr.length
+    }
+
     if (sliceEnd == 0) {
         sliceEnd = array.length
     }
@@ -187,3 +207,7 @@ export const stringToBacktickRepresentation = (string) => {
     return newString +"`"
 }
     // '`'+string.slice(0,10).replace("\\","\\\\").replace("`","\\`").replace("${","\\${")+'`'
+
+export function pureBinaryify(bytes) {
+    return `${eightToSeven.toString()}\n${stringToBytes.toString()}\nexport default stringToBytes(${stringToBacktickRepresentation(bytesToString(bytes))})`
+}
