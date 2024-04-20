@@ -209,5 +209,10 @@ export const stringToBacktickRepresentation = (string) => {
     // '`'+string.slice(0,10).replace("\\","\\\\").replace("`","\\`").replace("${","\\${")+'`'
 
 export function pureBinaryify(bytes) {
+    if (bytes instanceof ArrayBuffer) {
+        bytes = new Uint8Array(bytes)
+    } else if (!(bytes instanceof Uint8Array)) {
+        throw new Error("pureBinaryify() only works with Uint8Arrays")
+    }
     return `${eightToSeven.toString()}\n${stringToBytes.toString()}\nexport default stringToBytes(${stringToBacktickRepresentation(bytesToString(bytes))})`
 }
