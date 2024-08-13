@@ -1,40 +1,49 @@
 #!/usr/bin/env -S deno run --allow-all
-import { ensure } from 'https://deno.land/x/ensure/mod.ts'; ensure({ denoVersion: "1.17.1", })
-import { Console, cyan, white, yellow, green, red } from "https://deno.land/x/quickr@0.6.47/main/console.js"
-import { binaryify } from './binaryify_api.js'
+import { cyan, white, yellow, green, red } from "https://deno.land/x/quickr@0.6.47/main/console.js"
+import { binaryify } from "./binaryify_api.js"
+import { parseArgs, flag, required, initialValue } from "https://deno.land/x/good@1.7.1.1/flattened/parse_args.js"
+import { didYouMean } from "https://deno.land/x/good@1.7.1.1/flattened/did_you_mean.js"
 
+const argsInfo = parseArgs({
+    rawArgs: Deno.args,
+    fields: [
+        [["--version"], flag],
+        [["--help"], flag],
+    ],
+    namedArgsStopper: "--",
+    allowNameRepeats: true,
+    valueTransformer: JSON.parse,
+    isolateArgsAfterStopper: true,
+})
+didYouMean({
+    givenWords: Object.keys(argsInfo.implicitArgsByName).filter((each) => each.startsWith(`-`)),
+    possibleWords: Object.keys(argsInfo.explicitArgsByName).filter((each) => each.startsWith(`-`)),
+    autoThrow: true,
+    suggestionLimit: 1,
+})
+const { version: showVersion, help: showHelp } = argsInfo.explicitArgsByName
+const filePaths = argsInfo.argsAfterStopper
 
-// 
-// look for the -- argument
-// 
-let wePassedTheSwitch = false
-let endIndex = -1
-for (const each of Deno.args) {
-    endIndex += 1
-    if (each == "--") {
-        wePassedTheSwitch = true
-    }
+if (showVersion) {
+    console.log(`2.4.2.0`)
+    Deno.exit(0)
 }
-const args = Deno.args.slice(endIndex)
 
-if (!args) {
+if (filePaths.length == 0 || showHelp) {
     console.log(`
         To binaryify a file (or multiple) just give this command some arguments
         Instructions will be given on how to handle the binaryified-file after
 
         ex:
-            binaryify -- ./your_file.something
-    `)
+            ${green`binaryify`} -- ./your_file.something
+    `.replace(/\n        /g, "\n"))
 } else {
-
-    const namesAndStuff = await Promise.all(
-        args.map(eachPath=>binaryify({pathToBinary:eachPath}))
-    )
-    Console.log(`
-// paths have been generated!
-// add this wherever you need it now:
-`)
+    const namesAndStuff = await Promise.all(filePaths.map((eachPath) => binaryify({ pathToBinary: eachPath })))
+    console.log(`
+        // paths have been generated!
+        // add this wherever you need it now:
+    `.replace(/\n        /g, "\n"))
     for (let [realNameSuggestion, newPath] of namesAndStuff) {
-        Console.log(`${cyan`import`} ${yellow("uint8ArrayFor"+realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
+        console.log(`${cyan`import`} ${yellow("uint8ArrayFor" + realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
     }
 }
