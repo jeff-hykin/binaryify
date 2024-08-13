@@ -1,6 +1,6 @@
 # Binaryify
 
-If (for bundling purposes) you want to use an import statement for data that isn't necessarily JavaScript, then this is the tool for you.
+Want to bundle a wasm file, image, or other data into your JavaScript CLI program? Then this is the tool for you.
 
 ```sh
 deno install -Af https://deno.land/x/binaryify@2.4.2.0/binaryify.js
