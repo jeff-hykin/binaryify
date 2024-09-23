@@ -261,3 +261,21 @@ export function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymlink, is
     }
     export {folders as folders, symlinks as symlinks, hardlinks as hardlinks, contents as contents}`
 }
+
+export async function pureUnbinaryifyFolder({whereToDumpData, folders, symlinks, hardlinks, setPermissions, makeNestedFolder, makeSymlink, writeBytes}) {
+    // make folders first
+    await Promise.all(folders.map(async ({ path, permissions }) => {
+        path = `${whereToDumpData}/${path}`
+        await makeNestedFolder(path)
+        await setPermissions({path, permissions})
+    }))
+    await Promise.all(symlinks.concat(hardlinks).map(async ({ path, target, permissions, id, bytes }) => {
+        path = `${whereToDumpData}/${path}`
+        if (target) {
+            await makeSymlink({target, path})
+        } else {
+            await writeBytes({path, bytes})
+        }
+        await setPermissions({path, permissions})
+    }))
+}
