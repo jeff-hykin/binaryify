@@ -16,6 +16,9 @@ export async function binaryify({ pathToBinary, pathToBinarified }) {
     return [realNameSuggestion, pathToBinarified]
 }
 
+/**
+ * EXPERIMENTAL: API WILL CHANGE
+ */
 export function unbinaryify({ whereToDumpData, folders, symlinks, hardlinks }) {
     return pureUnbinaryifyFolder({
         whereToDumpData,
