@@ -15,3 +15,21 @@ export async function binaryify({pathToBinary, pathToBinarified}) {
     const realNameSuggestion = nameSuggestion[0].toUpperCase()+[...nameSuggestion].slice(1,).join("")
     return [ realNameSuggestion, pathToBinarified ]
 }
+
+export async function unbinaryifyFolder({whereToDumpData, folders, symlinks, hardlinks, setPermissions, makeNestedFolder, makeSymlink, writeBytes}) {
+    // make folders first
+    await Promise.all(folders.map(async ({ path, permissions }) => {
+        path = `${whereToDumpData}/${path}`
+        await makeNestedFolder(path)
+        await setPermissions(path, permissions)
+    }))
+    await Promise.all(symlinks.concat(hardlinks).map(async ({ path, target, permissions, id, bytes }) => {
+        path = `${whereToDumpData}/${path}`
+        if (target) {
+            await makeSymlink(target, path)
+        } else {
+            await writeBytes(path, bytes)
+        }
+        await setPermissions(path, permissions)
+    }))
+}

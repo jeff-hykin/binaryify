@@ -216,3 +216,48 @@ export function pureBinaryify(bytes) {
     }
     return `${eightToSeven.toString()}\n${stringToBytes.toString()}\nexport default stringToBytes(${stringToBacktickRepresentation(bytesToString(bytes))})`
 }
+
+export function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymlink, isFolder, }) {
+    let folders = []
+    let symlinks = []
+    let hardlinks = []
+    let contents = {}
+    for (const each of listOfPaths) {
+        // TODO: error if its an absolute path
+
+        const permissions = getPermissions(each)
+        if (isSymlink(each)) {
+            symlinks.push({
+                permissions,
+                path: each,
+                target: fs.readlinkSync(each),
+            })
+        } else if (isFolder(each)) {
+            folders.push({
+                permissions,
+                path: each,
+            })
+        } else {
+            const bytes = Deno.readFileSync(each)
+            const id = hash(bytes)
+            if (!contents[id]) {
+                contents[id] = bytesToString(bytes)
+            }
+            hardlinks.push({
+                permissions,
+                path: each,
+                id: id,
+            })
+        }
+    }
+    
+    return `${eightToSeven.toString()}\n${stringToBytes.toString()}
+    const {folders, symlinks, hardlinks, contents} = ${JSON.stringify({folders,symlinks,hardlinks,contents})}
+    for (const [id, bytesAsString] of Object.entries(contents)) {
+        contents[id] = stringToBytes(bytesAsString)
+    }
+    for (const each of hardlinks) {
+        each.bytes = contents[each.id]
+    }
+    export {folders as folders, symlinks as symlinks, hardlinks as hardlinks, contents as contents}`
+}
