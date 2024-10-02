@@ -208,13 +208,53 @@ export const stringToBacktickRepresentation = (string) => {
 }
     // '`'+string.slice(0,10).replace("\\","\\\\").replace("`","\\`").replace("${","\\${")+'`'
 
-export function pureBinaryify(bytes) {
+export function pureBinaryify(bytes, relativePathToOriginal, version) {
     if (bytes instanceof ArrayBuffer) {
         bytes = new Uint8Array(bytes)
     } else if (!(bytes instanceof Uint8Array)) {
         throw new Error("pureBinaryify() only works with Uint8Arrays")
     }
-    return `${eightToSeven.toString()}\n${stringToBytes.toString()}\nexport default stringToBytes(${stringToBacktickRepresentation(bytesToString(bytes))})`
+    let updateSelf = ""
+    if (relativePathToOriginal) {
+        if (version) {
+            version = `@${version}`
+        }
+        updateSelf = `
+            const relativePathToOriginal = ${JSON.stringify(relativePathToOriginal)}
+            try {
+                if (relativePathToOriginal && globalThis?.Deno?.readFileSync instanceof Function) {
+                    const { FileSystem } = await import("https://deno.land/x/quickr@0.6.72/main/file_system.js")
+                    // equivlent to: import.meta.resolve(relativePathToOriginal)
+                    // but more bundler-friendly
+                    const path = \`\${FileSystem.thisFolder}/\${relativePathToOriginal}\`
+                    const current = await Deno.readFile(path)
+                    output = current
+                    // update the file whenever (no await)
+                    const thisFile = FileSystem.thisFile // equivlent to: import.meta.filename, but more bundler-friendly
+                    setTimeout(async () => {
+                        try {
+                            const changeOccured = !(current.length == output.length && current.every((value, index) => value == output[index]))
+                            // update this file
+                            if (changeOccured) {
+                                output = current
+                                const { binaryify } = await import("https://deno.land/x/binaryify${version}/binaryify_api.js")
+                                await binaryify({
+                                    pathToBinary: path,
+                                    pathToBinarified: thisFile,
+                                })
+                            }
+                        } catch (e) {
+                        }
+                    }, 0)
+                }
+            } catch (e) {
+                console.error(e)
+            }
+        `.replace(/\n            /g,"\n")
+    }
+    return `${eightToSeven.toString()}\n${stringToBytes.toString()}
+let output = stringToBytes(${stringToBacktickRepresentation(bytesToString(bytes))})${updateSelf}
+export default output`
 }
 
 export function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymlink, isFolder, }) {
@@ -278,14 +318,4 @@ export async function pureUnbinaryifyFolder({whereToDumpData, folders, symlinks,
         }
         await setPermissions({path, permissions})
     }))
-}
-
-export function makeImport(codeString) {
-    function replaceNonAsciiWithUnicode(str) {
-        return str.replace(/[^\0-~](?<!\n|\r|\t|\0)/g, (char) => {
-            return '\\u' + ('0000' + char.charCodeAt(0).toString(16)).slice(-4);
-        })
-    }
-
-    return `"data:text/javascript;base64,${btoa(replaceNonAsciiWithUnicode(codeString))}"`
 }
