@@ -22,19 +22,6 @@ export async function binaryify({ pathToBinary, pathToBinarified }) {
     return [realNameSuggestion, pathToBinarified]
 }
 
-export function redo(paths) {
-    return Promise.all(
-        paths.map(async ([ pathToBinary, pathToBinarified ])=>{
-            if (globalThis.Deno && globalThis.Deno.lstat instanceof Function) {
-                const fileToBinaryifyExists = (await Deno.lstat(pathToBinary).catch(_=>0)).isFile
-                if (fileToBinaryifyExists) {
-                    await binaryify({pathToBinary,pathToBinarified}).catch(console.warn)
-                }
-            }
-        })
-    )
-}
-
 /**
  * EXPERIMENTAL: API WILL CHANGE
  */
