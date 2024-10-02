@@ -279,3 +279,13 @@ export async function pureUnbinaryifyFolder({whereToDumpData, folders, symlinks,
         await setPermissions({path, permissions})
     }))
 }
+
+export function makeImport(codeString) {
+    function replaceNonAsciiWithUnicode(str) {
+        return str.replace(/[^\0-~](?<!\n|\r|\t|\0)/g, (char) => {
+            return '\\u' + ('0000' + char.charCodeAt(0).toString(16)).slice(-4);
+        })
+    }
+
+    return `"data:text/javascript;base64,${btoa(replaceNonAsciiWithUnicode(codeString))}"`
+}

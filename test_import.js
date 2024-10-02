@@ -1,0 +1,5 @@
+import "data:text/javascript;base64,YXdhaXQgaW1wb3J0KCJodHRwczovL2Rlbm8ubGFuZC94L2JpbmFyeWlmeUAyLjQuMi4wL2JpbmFyeWlmeV9hcGkuanMiKS50aGVuKGI9PmIucmVkbyhbWyIuL1JFQURNRS5tZCJdXSkpLmNhdGNoKF89PjAp"
+
+import uint8ArrayForReadmeMd from "./README.md.binaryified.js"
+
+console.log(new TextDecoder().decode(uint8ArrayForReadmeMd))
