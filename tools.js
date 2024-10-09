@@ -263,20 +263,30 @@ export async function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymli
     let folders = []
     let symlinks = []
     let hardlinks = []
+    let permissionKinds = []
     let contents = {}
-    for (const each of listOfPaths) {
+    await Promise.all(listOfPaths.map(async (each) => {
+    
         // TODO: error if its an absolute path
 
         const permissions = await getPermissions(each)
+        const permissionsKey = JSON.stringify(permissions)
+        let permissionsId = permissionKinds.indexOf(permissionsKey)
+        if (permissionsId == -1) {
+            permissionKinds.push(permissionsKey)
+            permissionsId = permissionKinds.length-1
+        }
+        const pId = permissionsId
+
         if (await isSymlink(each)) {
             symlinks.push({
-                permissions,
+                pId,
                 path: each,
                 target: fs.readlinkSync(each),
             })
         } else if (await isFolder(each)) {
             folders.push({
-                permissions,
+                pId,
                 path: each,
             })
         } else {
@@ -286,14 +296,16 @@ export async function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymli
                 contents[id] = bytesToString(bytes)
             }
             hardlinks.push({
-                permissions,
+                pId,
                 path: each,
                 id: id,
             })
         }
-    }
+    }))
     
+    permissionKinds = permissionKinds.map(each=>JSON.parse(each))
     return `${eightToSeven.toString()}\n${stringToBytes.toString()}
+const permissionKinds = ${JSON.stringify(permissionKinds)}
 const folders = ${JSON.stringify(folders)}
 const symlinks = ${JSON.stringify(symlinks)}
 const hardlinks = ${JSON.stringify(hardlinks)}
@@ -303,6 +315,16 @@ for (const [id, bytesAsString] of Object.entries(contents)) {
 }
 for (const each of hardlinks) {
     each.bytes = contents[each.id]
+    each.permissions = permissionKinds[each.pId]
+    delete each.pId
+}
+for (const each of folders) {
+    each.permissions = permissionKinds[each.pId]
+    delete each.pId
+}
+for (const each of symlinks) {
+    each.permissions = permissionKinds[each.pId]
+    delete each.pId
 }
 export {folders as folders, symlinks as symlinks, hardlinks as hardlinks, contents as contents}`
 }
