@@ -281,48 +281,56 @@ export async function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymli
         if (await isSymlink(each)) {
             symlinks.push([pId, each, await readLink(each)])
         } else if (await isFolder(each)) {
-            folders.push({
-                pId,
-                path: each,
-            })
+            folders.push([pId, each])
         } else {
             const bytes = await getFileBytes(each)
             const id = await hashers.sha256(bytes)
             if (!contents[id]) {
                 contents[id] = bytesToString(bytes)
             }
-            hardlinks.push({
-                pId,
-                path: each,
-                id: id,
-            })
+            hardlinks.push([pId, each, id])
         }
     }))
     
     permissionKinds = permissionKinds.map(each=>JSON.parse(each))
     return `${eightToSeven.toString()}\n${stringToBytes.toString()}
-const permissionKinds = ${JSON.stringify(permissionKinds)}
-const folders = ${JSON.stringify(folders)}
-const symlinks = ${JSON.stringify(symlinks)}
-const hardlinks = ${JSON.stringify(hardlinks)}
+const permissionKinds = Object.freeze(${JSON.stringify(permissionKinds)})
+export const folders = ${JSON.stringify(folders)}
+export const symlinks = ${JSON.stringify(symlinks)}
+export const hardlinks = ${JSON.stringify(hardlinks)}
+export const items = {}
 const contents = ${JSON.stringify(contents)}
 for (const [id, bytesAsString] of Object.entries(contents)) {
     contents[id] = stringToBytes(bytesAsString)
 }
-for (const each of hardlinks) {
-    each.bytes = contents[each.id]
-    each.permissions = permissionKinds[each.pId]
-    delete each.pId
+export class Item extends Array {
+    get permissions() { return permissionKinds[this[0]] }
+    get path() { return this[1] }
+}
+export class Folder extends Item {
+    kind = "folder"
+}
+export class Symlink extends Item {
+    kind = "symlink"
+    get target() { return this[2] }
+}
+export class Hardlink extends Item {
+    kind = "hardlink"
+    get bytes() { return contents[this[2]] }
+    get contentHash() { return this[2] }
 }
 for (const each of folders) {
-    each.permissions = permissionKinds[each.pId]
-    delete each.pId
+    Object.setPrototypeOf(each, Folder.prototype)
+    items[each[1]] = each
 }
 for (const each of symlinks) {
-    each.permissions = permissionKinds[each.pId]
-    delete each.pId
+    Object.setPrototypeOf(each, Symlink.prototype)
+    items[each[1]] = each
 }
-export {folders as folders, symlinks as symlinks, hardlinks as hardlinks, contents as contents}`
+for (const each of hardlinks) {
+    Object.setPrototypeOf(each, Hardlink.prototype)
+    items[each[1]] = each
+}`
 }
 
 export async function pureUnbinaryifyFolder({whereToDumpData, folders, symlinks, hardlinks, setPermissions, makeNestedFolder, makeSymlink, writeBytes}) {
