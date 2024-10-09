@@ -1,6 +1,6 @@
 import { FileSystem } from "https://deno.land/x/quickr@0.6.72/main/file_system.js"
 import { toCamelCase } from "https://deno.land/x/good@0.7.8/string.js"
-import { stringToBacktickRepresentation, bytesToString, pureBinaryify, pureUnbinaryifyFolder } from "./tools.js"
+import { stringToBacktickRepresentation, bytesToString, pureBinaryify, pureUnbinaryifyFolder, pureBinaryifyFolder } from "./tools.js"
 import version from "./version.js"
 
 export async function binaryify({ pathToBinary, pathToBinarified }) {
@@ -35,5 +35,21 @@ export function unbinaryify({ whereToDumpData, folders, symlinks, hardlinks }) {
         makeNestedFolder: (path) => Deno.mkdir(path, {recursive: true}),
         makeSymlink: ({target, path}) => Deno.symlinkSync(target, path),
         writeBytes: ({path, bytes}) => Deno.writeFileSync(path, bytes),
+    })
+}
+
+/**
+ * EXPERIMENTAL: API WILL CHANGE
+ */
+export async function _binaryifyFolder(path) {
+    const absolutePath = FileSystem.normalize(FileSystem.makeAbsolutePath(path))+"/"
+    const paths = (await FileSystem.listFilePathsIn(absolutePath))
+    return pureBinaryifyFolder({
+        listOfPaths: paths.map(each=>each.slice(absolutePath.length)),
+        getPermissions: path=>FileSystem.getPermissions(absolutePath+path),
+        isSymlink: path=>FileSystem.sync.info(absolutePath+path).isSymlink,
+        isFolder: path=>FileSystem.sync.info(absolutePath+path).isFolder,
+        getFileBytes: path=>Deno.readFile(absolutePath+path),
+        readLink: path=>Deno.readLink(absolutePath+path),
     })
 }
