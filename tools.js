@@ -299,25 +299,33 @@ export const folders = ${JSON.stringify(folders)}
 export const symlinks = ${JSON.stringify(symlinks)}
 export const hardlinks = ${JSON.stringify(hardlinks)}
 export const items = {}
-const contents = ${JSON.stringify(contents)}
-for (const [id, bytesAsString] of Object.entries(contents)) {
-    contents[id] = stringToBytes(bytesAsString)
-}
-export class Item extends Array {
+const contents = Object.freeze(Object.seal(Object.preventExtensions({
+${Object.entries(contents).map(([id, bytesAsString]) => `${JSON.stringify(id)}: stringToBytes(${stringToBacktickRepresentation(bytesAsString)}),` ).join("\n")}
+})))
+export class Item {
     get permissions() { return permissionKinds[this[0]] }
     get path() { return this[1] }
 }
 export class Folder extends Item {
-    kind = "folder"
+    kind = "folder";
+    [Symbol.for("Deno.customInspect")](inspect,options) {
+        return inspect({permissions: this.permissions, path: this.path},options)
+    }
 }
 export class Symlink extends Item {
     kind = "symlink"
     get target() { return this[2] }
+    [Symbol.for("Deno.customInspect")](inspect,options) {
+        return inspect({permissions: this.permissions, path: this.path, target: this.target }, options)
+    }
 }
 export class Hardlink extends Item {
     kind = "hardlink"
     get bytes() { return contents[this[2]] }
     get contentHash() { return this[2] }
+    [Symbol.for("Deno.customInspect")](inspect,options) {
+        return inspect({permissions: this.permissions, path: this.path, contentHash: this.contentHash, bytes: this.bytes, }, options)
+    }
 }
 for (const each of folders) {
     Object.setPrototypeOf(each, Folder.prototype)
