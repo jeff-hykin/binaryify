@@ -259,7 +259,7 @@ let output = stringToBytes(${stringToBacktickRepresentation(bytesToString(bytes)
 export default output`
 }
 
-export async function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymlink, isFolder, getFileBytes }) {
+export async function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymlink, isFolder, getFileBytes, readLink }) {
     let folders = []
     let symlinks = []
     let hardlinks = []
@@ -279,11 +279,7 @@ export async function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymli
         const pId = permissionsId
 
         if (await isSymlink(each)) {
-            symlinks.push({
-                pId,
-                path: each,
-                target: fs.readlinkSync(each),
-            })
+            symlinks.push([pId, each, await readLink(each)])
         } else if (await isFolder(each)) {
             folders.push({
                 pId,
