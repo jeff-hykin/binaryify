@@ -1,3 +1,5 @@
+import { hashers } from "https://deno.land/x/good@1.9.1.1/encryption.js"
+
 export function getBit(n, bit) {
     return n >> bit & 1
 }
@@ -257,7 +259,7 @@ let output = stringToBytes(${stringToBacktickRepresentation(bytesToString(bytes)
 export default output`
 }
 
-export function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymlink, isFolder, }) {
+export async function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymlink, isFolder, getFileBytes }) {
     let folders = []
     let symlinks = []
     let hardlinks = []
@@ -265,21 +267,21 @@ export function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymlink, is
     for (const each of listOfPaths) {
         // TODO: error if its an absolute path
 
-        const permissions = getPermissions(each)
-        if (isSymlink(each)) {
+        const permissions = await getPermissions(each)
+        if (await isSymlink(each)) {
             symlinks.push({
                 permissions,
                 path: each,
                 target: fs.readlinkSync(each),
             })
-        } else if (isFolder(each)) {
+        } else if (await isFolder(each)) {
             folders.push({
                 permissions,
                 path: each,
             })
         } else {
-            const bytes = Deno.readFileSync(each)
-            const id = hash(bytes)
+            const bytes = await getFileBytes(each)
+            const id = await hashers.sha256(bytes)
             if (!contents[id]) {
                 contents[id] = bytesToString(bytes)
             }
@@ -292,14 +294,17 @@ export function pureBinaryifyFolder({ listOfPaths, getPermissions, isSymlink, is
     }
     
     return `${eightToSeven.toString()}\n${stringToBytes.toString()}
-    const {folders, symlinks, hardlinks, contents} = ${JSON.stringify({folders,symlinks,hardlinks,contents})}
-    for (const [id, bytesAsString] of Object.entries(contents)) {
-        contents[id] = stringToBytes(bytesAsString)
-    }
-    for (const each of hardlinks) {
-        each.bytes = contents[each.id]
-    }
-    export {folders as folders, symlinks as symlinks, hardlinks as hardlinks, contents as contents}`
+const folders = ${JSON.stringify(folders)}
+const symlinks = ${JSON.stringify(symlinks)}
+const hardlinks = ${JSON.stringify(hardlinks)}
+const contents = ${JSON.stringify(contents)}
+for (const [id, bytesAsString] of Object.entries(contents)) {
+    contents[id] = stringToBytes(bytesAsString)
+}
+for (const each of hardlinks) {
+    each.bytes = contents[each.id]
+}
+export {folders as folders, symlinks as symlinks, hardlinks as hardlinks, contents as contents}`
 }
 
 export async function pureUnbinaryifyFolder({whereToDumpData, folders, symlinks, hardlinks, setPermissions, makeNestedFolder, makeSymlink, writeBytes}) {
