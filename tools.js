@@ -250,7 +250,7 @@ export function pureBinaryify(bytes, relativePathToOriginal, version) {
                     }, 0)
                 }
             } catch (e) {
-                console.error(e)
+                
             }
         `.replace(/\n            /g,"\n")
     }
