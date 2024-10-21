@@ -1,0 +1,9 @@
+- fix auto-updating file
+- change name to jsify
+- make file/folder work automatically
+    - create a "hash folder" function
+    - might need to consider having a filter on the folder (js filter, startsWith, endsWith, etc)
+- add text file support/detection for better compression, less mangling
+- add zipping
+- consider adding a bundler option with esbuild
+- consider adding a generic on change "update" option

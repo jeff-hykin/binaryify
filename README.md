@@ -3,7 +3,7 @@
 Want to bundle a wasm file, image, or other data into your JavaScript CLI program? Then this is the tool for you.
 
 ```sh
-deno install -Af https://deno.land/x/binaryify@2.5.1.1/binaryify.js
+deno install -Afg https://deno.land/x/binaryify@2.5.1.1/binaryify.js
 # might need
 export PATH="$HOME/.deno/bin:$PATH"
 
