@@ -4,6 +4,15 @@ export function getBit(n, bit) {
     return n >> bit & 1
 }
 
+export function isValidUtf8(bytes) {
+    try {
+        new TextDecoder("utf8", { fatal: true }).decode(bytes)
+    } catch {
+        return false
+    }
+    return true
+}
+
 export function setBit(n, bit, value=1) {
     if (value) {
         return n | (1 << bit)
@@ -253,6 +262,14 @@ export function pureBinaryify(bytes, relativePathToOriginal, version) {
                 
             }
         `.replace(/\n            /g,"\n")
+    }
+    // if all bytes are valid utf8 (e.g. plaintext), then we can save a lot on compression and just use the string
+    try {
+        return `let output = new TextEncoder().encode(${stringToBacktickRepresentation(
+            new TextDecoder("utf8", { fatal: true }).decode(bytes)
+        )})${updateSelf}\nexport default output`
+    // if invalid utf8, then we fallback on using bytes
+    } catch (error) {
     }
     return `${eightToSeven.toString()}\n${stringToBytes.toString()}
 let output = stringToBytes(${stringToBacktickRepresentation(bytesToString(bytes))})${updateSelf}
