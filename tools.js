@@ -239,15 +239,16 @@ export function pureBinaryify(bytes, relativePathToOriginal, version) {
                     // but more bundler-friendly
                     const path = \`\${FileSystem.thisFolder}/\${relativePathToOriginal}\`
                     const current = await Deno.readFile(path)
+                    const original = output
                     output = current
+
                     // update the file whenever (no await)
                     const thisFile = FileSystem.thisFile // equivlent to: import.meta.filename, but more bundler-friendly
                     setTimeout(async () => {
                         try {
-                            const changeOccured = !(current.length == output.length && current.every((value, index) => value == output[index]))
+                            const changeOccured = !(current.length == original.length && current.every((value, index) => value == original[index]))
                             // update this file
                             if (changeOccured) {
-                                output = current
                                 const { binaryify } = await import("https://deno.land/x/binaryify${version}/binaryify_api.js")
                                 await binaryify({
                                     pathToBinary: path,
