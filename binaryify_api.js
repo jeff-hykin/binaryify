@@ -3,7 +3,7 @@ import { toCamelCase } from "https://deno.land/x/good@0.7.8/string.js"
 import { stringToBacktickRepresentation, bytesToString, pureBinaryify, pureUnbinaryifyFolder, pureBinaryifyFolder } from "./tools.js"
 import version from "./version.js"
 
-export async function binaryify({ pathToBinary, pathToBinarified }) {
+export async function binaryify({ pathToBinary, pathToBinarified, disableSelfUpdating = false, forceExportString = false }) {
     pathToBinarified = pathToBinarified || pathToBinary + ".binaryified.js"
     await FileSystem.write({
         path: pathToBinarified,
@@ -11,6 +11,7 @@ export async function binaryify({ pathToBinary, pathToBinarified }) {
             await Deno.readFile(pathToBinary),
             FileSystem.makeRelativePath({from: FileSystem.parentPath(pathToBinarified), to: pathToBinary}),
             version,
+            { disableSelfUpdating, forceExportString },
         ),
         overwrite: true,
     })

@@ -225,14 +225,14 @@ export const stringToBacktickRepresentation = (string) => {
 }
     // '`'+string.slice(0,10).replace("\\","\\\\").replace("`","\\`").replace("${","\\${")+'`'
 
-export function pureBinaryify(bytes, relativePathToOriginal, version) {
+export function pureBinaryify(bytes, relativePathToOriginal, version, { disableSelfUpdating = false, forceExportString = false } = {}) {
     if (bytes instanceof ArrayBuffer) {
         bytes = new Uint8Array(bytes)
     } else if (!(bytes instanceof Uint8Array)) {
         throw new Error("pureBinaryify() only works with Uint8Arrays")
     }
     let updateSelf = ""
-    if (relativePathToOriginal) {
+    if (relativePathToOriginal && !disableSelfUpdating) {
         if (version) {
             version = `@${version}`
         }
@@ -259,6 +259,7 @@ export function pureBinaryify(bytes, relativePathToOriginal, version) {
                                 await binaryify({
                                     pathToBinary: path,
                                     pathToBinarified: thisFile,
+                                    forceExportString: ${forceExportString},
                                 })
                             }
                         } catch (e) {
@@ -272,11 +273,23 @@ export function pureBinaryify(bytes, relativePathToOriginal, version) {
     }
     // if all bytes are valid utf8 (e.g. plaintext), then we can save a lot on compression and just use the string
     try {
-        return `let output = new TextEncoder().encode(${stringToBacktickRepresentation(
-            new TextDecoder("utf8", { fatal: true }).decode(bytes)
-        )})${updateSelf}\nexport default output`
+        if (forceExportString) {
+            return `let output = ${stringToBacktickRepresentation(
+                new TextDecoder("utf8", { fatal: true }).decode(bytes)
+            )}${updateSelf}\nexport default output`
+        } else {
+            return `let output = new TextEncoder().encode(${stringToBacktickRepresentation(
+                new TextDecoder("utf8", { fatal: true }).decode(bytes)
+            )})${updateSelf}\nexport default output`
+        }
     // if invalid utf8, then we fallback on using bytes
     } catch (error) {
+        if (forceExportString) {
+            console.warn(`Binaryify was called with forceExportString=true.\nThere were some bytes that were not valid utf8.\nThose bytes will be ignored, but it may be a cause for concern`)
+            return `let output = ${stringToBacktickRepresentation(
+                new TextDecoder("utf8", { fatal: true }).decode(bytes)
+            )}${updateSelf}\nexport default output`
+        }
     }
     return `${eightToSeven.toString()}\n${stringToBytes.toString()}
 let output = stringToBytes(${stringToBacktickRepresentation(bytesToString(bytes))})${updateSelf}
