@@ -190,13 +190,19 @@ export function isValidIdentifier(value) {
 
 export const stringToBacktickRepresentation = (string) => {
     let newString = "`"
+    let nextIndex = 0
     for (const each of string) {
+        nextIndex++
         if (each == "\\") {
             newString += "\\\\"
         } else if (each == "`") {
             newString += "\\`"
         } else if (each == "$") {
-            newString += "\\$"
+            if (string[nextIndex] == "{") {
+                newString += "\\$"
+            } else {
+                newString += "$"
+            }
         } else if (each == "\r") { // special because it screws up CRLF vs LF and makes the file look like a binary file
             newString += "\\r"
         // sequences that dont need to be escaped
