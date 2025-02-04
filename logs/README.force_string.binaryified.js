@@ -3,7 +3,7 @@ let output = `# Binaryify
 Want to bundle a wasm file, image, or other data into your JavaScript CLI program? Then this is the tool for you.
 
 \`\`\`sh
-deno install -Afg https://deno.land/x/binaryify@2.5.3.0/binaryify.js
+deno install -Afg https://deno.land/x/binaryify@2.5.4.0/binaryify.js
 # might need
 export PATH="$HOME/.deno/bin:$PATH"
 
@@ -23,25 +23,26 @@ binaryify -- YOUR_FILE.wasm
 You can use the interface programatically as well:
  
 \`\`\`js
-import { binaryify } from "https://deno.land/x/binaryify@2.5.3.0/binaryify_api.js"
+import { binaryify } from "https://deno.land/x/binaryify@2.5.4.0/binaryify_api.js"
 await binaryify({
     pathToBinary: "your_thing.png",
     pathToBinarified: "your_thing.png.binaryified.js",
+    disableSelfUpdating: false, // default is false
+    forceExportString: false, // NOTE: making this true is only useful if you're binaryify a text file
+                              // when this is true, instead of exporting Uint8Array, it will export a string
 })
 \`\`\`
 
-Now you can then import that file like this: 
+Then import the binaryified file file like this: 
 \`\`\`js
 import uint8ArrayOfYourFile from "./your_thing.png.binaryified.js"
 console.log(uint8ArrayOfYourFile) // Uint8Array with a bunch of bytes
-
-// NOTE: every time 
 \`\`\`
 
 You can even binaryify stuff client-side on the web!
  
 \`\`\`js
-import { pureBinaryify } from "https://deno.land/x/binaryify@2.5.3.0/tools.js"
+import { pureBinaryify } from "https://deno.land/x/binaryify@2.5.4.0/tools.js"
 const uint8ArrayFromAFile = new Uint8Array(new ArrayBuffer(7))
 const jsFileString = pureBinaryify(uint8ArrayFromAFile)
 \`\`\``
@@ -52,7 +53,7 @@ try {
         // equivlent to: import.meta.resolve(relativePathToOriginal)
         // but more bundler-friendly
         const path = `${FileSystem.thisFolder}/${relativePathToOriginal}`
-        const current = await Deno.readFile(path)
+        const current = await Deno.readTextFile(path)
         const original = output
         output = current
 
@@ -63,7 +64,7 @@ try {
                 const changeOccured = !(current.length == original.length && current.every((value, index) => value == original[index]))
                 // update this file
                 if (changeOccured) {
-                    const { binaryify } = await import("https://deno.land/x/binaryify@2.5.3.0/binaryify_api.js")
+                    const { binaryify } = await import("https://deno.land/x/binaryify@2.5.4.0/binaryify_api.js")
                     await binaryify({
                         pathToBinary: path,
                         pathToBinarified: thisFile,
