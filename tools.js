@@ -244,7 +244,11 @@ export function pureBinaryify(bytes, relativePathToOriginal, version, { disableS
                     // equivlent to: import.meta.resolve(relativePathToOriginal)
                     // but more bundler-friendly
                     const path = \`\${FileSystem.thisFolder}/\${relativePathToOriginal}\`
-                    const current = await Deno.readFile(path)
+                    ${forceExportString?
+                            `const current = await Deno.readTextFile(path)`
+                        :
+                            `const current = await Deno.readFile(path)`
+                    }
                     const original = output
                     output = current
 
