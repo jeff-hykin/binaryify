@@ -10,6 +10,7 @@ const argsInfo = parseArgs({
     fields: [
         [["--version"], flag],
         [["--help"], flag],
+        [["--text"], flag],
     ],
     namedArgsStopper: "--",
     allowNameRepeats: true,
@@ -22,7 +23,7 @@ didYouMean({
     autoThrow: true,
     suggestionLimit: 1,
 })
-const { version: showVersion, help: showHelp } = argsInfo.explicitArgsByName
+const { version: showVersion, help: showHelp, text } = argsInfo.explicitArgsByName
 const filePaths = argsInfo.argsAfterStopper
 
 if (showVersion) {
@@ -39,7 +40,8 @@ if (filePaths.length == 0 || showHelp) {
             ${green`binaryify`} -- ./your_file.something
     `.replace(/\n        /g, "\n"))
 } else {
-    const namesAndStuff = await Promise.all(filePaths.map((eachPath) => binaryify({ pathToBinary: eachPath })))
+    const namesAndStuff = await Promise.all(filePaths.map((eachPath) => binaryify({ pathToBinary: eachPath, forceExportString: !!text })))
+    const namePrefix = text ? "stringFor" : "uint8ArrayFor"
     console.log(`
         // paths have been generated!
         // add this wherever you need it now:
@@ -48,6 +50,6 @@ if (filePaths.length == 0 || showHelp) {
         // if you change the YOUR_FILE.wasm, YOUR_FILE.wasm.binaryified.js will change too!
     `.replace(/\n        /g, "\n"))
     for (let [realNameSuggestion, newPath] of namesAndStuff) {
-        console.log(`${cyan`import`} ${yellow("uint8ArrayFor" + realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
+        console.log(`${cyan`import`} ${yellow(namePrefix + realNameSuggestion)} ${cyan`from`} ${green(JSON.stringify(newPath))}`)
     }
 }
