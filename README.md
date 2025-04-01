@@ -14,7 +14,7 @@ binaryify -- YOUR_FILE.wasm
 #    // paths have been generated!
 #    // add this wherever you need it now:
 #
-#    // NOTE: this is auto-updating!
+#    // NOTE: when run with Deno, this is auto-updating import!
 #    // if you change the YOUR_FILE.wasm, YOUR_FILE.wasm.binaryified.js will change too!
 #    import uint8ArrayForYourFile from "./YOUR_FILE.wasm.binaryified.js"
 ```
