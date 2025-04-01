@@ -1,6 +1,6 @@
 # Binaryify
 
-Want to bundle a wasm file, image, or other data into your JavaScript CLI program? Then this is the tool for you.
+Want to bundle a wasm file, image, or other data into plain JavaScript? (ex: a deno cli tool, or a web bundle) Then this is the tool for you.
 
 ```sh
 deno install -Afg https://deno.land/x/binaryify@2.5.5.0/binaryify.js
