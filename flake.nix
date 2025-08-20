@@ -84,26 +84,7 @@
                             # this is kinda like .zshrc
                             initContent = ''
                                 # this enables some impure stuff like sudo, comment it out to get FULL purity
-                                export PATH="$PATH:/usr/bin/"
-                                
-                                #
-                                # Ruby setup
-                                #
-                                export GEM_HOME="$HOME/gems.ignore/"
-                                # if not setup yet, then setup ruby
-                                if ! [ -d "$VAR" ]
-                                then
-                                    mkdir "$GEM_HOME" &>/dev/null
-                                    bundix -l
-                                    bundler install
-                                fi
-                                
-                                #
-                                # Npm setup
-                                #
-                                if ! [ -d "./node_modules" ]; then
-                                    npm install
-                                fi
+                                # export PATH="$PATH:/usr/bin/"
                             '';
                         };
                         starship = {
