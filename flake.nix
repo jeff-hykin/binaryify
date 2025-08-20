@@ -13,13 +13,13 @@
         xome.inputs.home-manager.follows = "home-manager";
         rust-overlay.url = "github:oxalica/rust-overlay";
     };
-    outputs = { self, nixpkgs, nixpkgsWithNodejs18, nixpkgsWithRuby, xome, rust-overlay, ... }:
+    outputs = { self, nixpkgs, xome, rust-overlay, ... }:
         xome.superSimpleMakeHome { inherit nixpkgs; pure = true; } ({system, ...}:
             let
                 pkgs = import nixpkgs {
                     system = system;
                     overlays = [
-                        rust-overlay.overlay 
+                        (import rust-overlay)
                     ];
                     config = {
                         allowUnfree = true;
