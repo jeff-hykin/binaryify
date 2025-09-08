@@ -1,0 +1,10 @@
+#!/usr/bin/env -S deno run --allow-all --no-lock
+import { FileSystem } from "https://deno.land/x/quickr@0.8.1/main/file_system.js"
+import $ from "https://esm.sh/@jsr/david__dax@0.43.2/mod.ts"
+const $$ = (...args)=>$(...args).noThrow()
+// await $$`false`
+// (await $$`false`).code
+// await $$`false`.text("stderr")
+// await $$`false`.text("combined")
+// await $$`echo`.stdinText("yes\n")
+await $$`wasm-pack build --target web && ${Deno.execPath()} run --allow-all --no-config 'https://esm.sh/gh/jeff-hykin/wasm-pack-embed-unofficial@560b091/wpe.js' ${Deno.args}`
