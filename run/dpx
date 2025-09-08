@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec deno run --allow-all --no-config 'https://raw.githubusercontent.com/jeff-hykin/dpx/refs/1.0.0.0/dpx.js' "$@"
