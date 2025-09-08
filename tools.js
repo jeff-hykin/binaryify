@@ -1,5 +1,5 @@
 import { hashers } from "https://deno.land/x/good@1.9.1.1/encryption.js"
-import { escapeJsString } from "https://esm.sh/gh/jeff-hykin/good-js@1.14.3.3/source/flattened/escape_js_string.js"
+import { escapeJsString } from "https://esm.sh/gh/jeff-hykin/good-js@1.18.0.0/source/flattened/escape_js_string.js"
 
 export function getBit(n, bit) {
     return n >> bit & 1

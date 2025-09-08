@@ -1,9 +1,9 @@
 # Binaryify
 
-Want to bundle a wasm file, image, or other data into your JavaScript CLI program? Then this is the tool for you.
+Want to optimally bundle a wasm file, image, or other data into your JavaScript CLI program? Then this is the tool for you. Rather than converting the wasm file to base64 string, this tool takes advantage of the full range of utf8 making the resulting file as small as possible without resorting to zip-like compression. The resulting should always be ~1.125x the size of the original file.
 
 ```sh
-deno install -Afg https://deno.land/x/binaryify@2.5.5.0/binaryify.js
+deno install -Afg https://deno.land/x/binaryify@2.5.6.0/binaryify.js
 # might need
 export PATH="$HOME/.deno/bin:$PATH"
 
