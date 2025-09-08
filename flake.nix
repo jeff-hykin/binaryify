@@ -48,6 +48,7 @@
                     pkgs.wasm-bindgen-cli
                     pkgs.wasm-pack
                     pkgs.pkg-config
+                    pkgs.deno
                 ];
             in
                 {
@@ -87,6 +88,7 @@
                                 
                                 # vital stuff
                                 pkgs.coreutils-full
+                                pkgs.dash # for sh
                                 
                                 # optional stuff
                                 pkgs.gnugrep
@@ -124,8 +126,20 @@
                                     history.size = 100000;
                                     # this is kinda like .zshrc
                                     initContent = ''
+                                        # lots of things need "sh"
+                                        ln -s "$(which dash)" "$HOME/.local/bin/sh" 2>/dev/null
                                         # this enables some impure stuff like sudo, comment it out to get FULL purity
-                                        export PATH="$PATH:/usr/bin/"
+                                        # export PATH="$PATH:/usr/bin/"
+                                        __real_deno="$(which deno)"
+                                        # shim deno to default to the no-lock version so that home lock files don't get looked at
+                                        # not perfect but less annoying than nothing
+                                        deno() {
+                                            if [ "$#" = "0" ]; then
+                                                "$__real_deno" repl -A --no-lock
+                                            else
+                                                "$__real_deno" "$@"
+                                            fi
+                                        }
                                     '';
                                 };
                                 starship = {

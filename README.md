@@ -1,6 +1,6 @@
 # Binaryify
 
-Want to optimally bundle a wasm file, image, or other data into your JavaScript CLI program? Then this is the tool for you. Rather than converting the wasm file to base64 string, this tool takes advantage of the full range of utf8 making the resulting file as small as possible without resorting to zip-like compression. The resulting should always be ~1.125x the size of the original file.
+Want to bundle a wasm file, image, or other data into plain JavaScript? Rather than converting the wasm file to base64 string, this tool takes advantage of the full range of utf8 making the resulting file as small as possible without resorting to zip-like compression. The resulting should always be ~1.125x the size of the original file. It includes auto-updating functionality. When run using Deno it will grab the original file, and update itself. When running on any other platform, or if the original file disappears, it will simply use the value embedded in the js file.
 
 ```sh
 deno install -Afg https://deno.land/x/binaryify@2.5.6.0/binaryify.js
@@ -14,7 +14,7 @@ binaryify -- YOUR_FILE.wasm
 #    // paths have been generated!
 #    // add this wherever you need it now:
 #
-#    // NOTE: this is auto-updating!
+#    // NOTE: when run with Deno, this is auto-updating import!
 #    // if you change the YOUR_FILE.wasm, YOUR_FILE.wasm.binaryified.js will change too!
 #    import uint8ArrayForYourFile from "./YOUR_FILE.wasm.binaryified.js"
 ```
