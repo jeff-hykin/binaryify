@@ -18,6 +18,7 @@
     outputs = { self, flake-utils, nixpkgs, fenix, xome, ... }:
         flake-utils.lib.eachSystem (builtins.attrNames fenix.packages) (system:
             let
+                projectName = "js-ify";
                 pkgs = import nixpkgs {
                     inherit system;
                     overlays = [
@@ -51,7 +52,7 @@
             in
                 {
                     packages.default = rustPlatform.buildRustPackage {
-                        pname = "js-ify";
+                        pname = projectName;
                         version = "0.1.0";
                         src = ./.;
                         
@@ -78,7 +79,7 @@
                             # https://deepwiki.com/nix-community/home-manager/5-configuration-examples
                             # all home-manager options: 
                             # https://nix-community.github.io/home-manager/options.xhtml
-                            home.homeDirectory = "/tmp/virtual_homes/render_ui";
+                            home.homeDirectory = "/tmp/virtual_homes/${projectName}";
                             home.stateVersion = "25.05";
                             home.packages = nativeBuildInputs ++ [
                                 # project stuff
