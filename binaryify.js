@@ -11,6 +11,7 @@ const argsInfo = parseArgs({
         [["--version"], flag],
         [["--help"], flag],
         [["--text"], flag],
+        [["--no-self-update"], flag],
     ],
     namedArgsStopper: "--",
     allowNameRepeats: true,
@@ -23,7 +24,7 @@ didYouMean({
     autoThrow: true,
     suggestionLimit: 1,
 })
-const { version: showVersion, help: showHelp, text } = argsInfo.explicitArgsByName
+const { version: showVersion, help: showHelp, text, noSelfUpdate } = argsInfo.explicitArgsByName
 const filePaths = argsInfo.argsAfterStopper
 
 if (showVersion) {
@@ -38,9 +39,11 @@ if (filePaths.length == 0 || showHelp) {
 
         ex:
             ${green`binaryify`} -- ./your_file.something
+            ${green`binaryify`} --text -- ./your_file.txt
+            ${green`binaryify`} --no-self-update -- ./your_file.txt
     `.replace(/\n        /g, "\n"))
 } else {
-    const namesAndStuff = await Promise.all(filePaths.map((eachPath) => binaryify({ pathToBinary: eachPath, forceExportString: !!text })))
+    const namesAndStuff = await Promise.all(filePaths.map((eachPath) => binaryify({ pathToBinary: eachPath, forceExportString: !!text, disableSelfUpdating: !!noSelfUpdate })))
     const namePrefix = text ? "stringFor" : "uint8ArrayFor"
     console.log(`
         // paths have been generated!
