@@ -7,4 +7,7 @@ const $$ = (...args)=>$(...args).noThrow()
 // await $$`false`.text("stderr")
 // await $$`false`.text("combined")
 // await $$`echo`.stdinText("yes\n")
-await $$`wasm-pack build --target web && ${Deno.execPath()} run --allow-all --no-config 'https://esm.sh/gh/jeff-hykin/wasm-pack-embed-unofficial@560b091/wpe.js' ${Deno.args}`
+await $$`wasm-pack build --target web && ${Deno.execPath()} run --allow-all --no-config 'https://esm.sh/gh/jeff-hykin/wasm-pack-embed-unofficial@1.0.0.7/wpe.js' ${Deno.args}`
+
+await FileSystem.remove(`./pkg/.gitignore`)
+await FileSystem.remove(`./pkg/README.md`)
